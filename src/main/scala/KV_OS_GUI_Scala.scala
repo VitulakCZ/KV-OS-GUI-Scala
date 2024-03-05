@@ -48,6 +48,13 @@ object KV_OS_GUI_Scala extends JFXApp3:
 
             val shutdownButtonAno: shutdownButton = new shutdownButton(X, Y):
                 onMouseClicked = () => System.exit(0)
+            val shutdownButtonAnoText: Text = new Text("Ano"):
+                fill = Color.White
+                style = "-fx-font: 10pt calibri"
+                y = shutdownTextY * 1.7
+                onMouseClicked = () => System.exit(0)
+            shutdownButtonAnoText.x = centerX(X, shutdownButtonAnoText, 3)
+
             val shutdownButtonNe: Rectangle = new shutdownButton(X, Y):
                 x = x.toInt + width.toInt * 1.5
                 onMouseClicked = () => shutdownClick()
@@ -56,7 +63,6 @@ object KV_OS_GUI_Scala extends JFXApp3:
                 style = "-fx-font: 10pt calibri"
                 y = shutdownTextY * 1.7
                 onMouseClicked = () => shutdownClick()
-
             shutdownButtonNeText.x = centerX(X, shutdownButtonNeText, -2.7)
 
             val shutdownClick = () =>
@@ -64,6 +70,6 @@ object KV_OS_GUI_Scala extends JFXApp3:
                 content = if !tlacitkoZapnute then shutdownDesktop else defaultDesktop
                 tlacitkoZapnute = !tlacitkoZapnute
 
-            val shutdownDesktop = List(txt, tlacitko, shutdownText, shutdownButtonAno, shutdownButtonNe, shutdownButtonNeText)
+            val shutdownDesktop = List(txt, tlacitko, shutdownText, shutdownButtonAno, shutdownButtonNe, shutdownButtonAnoText, shutdownButtonNeText)
             val defaultDesktop = List(txt, tlacitko, shutdownText)
             content = defaultDesktop
