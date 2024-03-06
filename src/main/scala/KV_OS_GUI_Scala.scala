@@ -70,6 +70,8 @@ object KV_OS_GUI_Scala extends JFXApp3:
                 content = if !tlacitkoZapnute then shutdownDesktop else defaultDesktop
                 tlacitkoZapnute = !tlacitkoZapnute
 
+            val gamesText: Text = new Text("Games")
+
             val shutdownDesktop = List(txt, tlacitko, shutdownText, shutdownButtonAno, shutdownButtonNe, shutdownButtonAnoText, shutdownButtonNeText)
             val defaultDesktop = List(txt, tlacitko, shutdownText)
             content = defaultDesktop
