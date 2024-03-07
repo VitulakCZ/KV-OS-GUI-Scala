@@ -11,6 +11,21 @@ class shutdownButton(X: Int, Y: Int) extends Rectangle:
     x = X / 2 - width.toInt * 1.3
     y = Y / 2 - height.toInt / 2
 
+trait konstrukceKarty(kolikKaret: Int) extends Rectangle:
+    width = 100
+    height = 20
+    fill = Color.Red
+    x = kolikKaret * width.toInt
+    y = 550
+
+abstract class Karta(kolikKaret: Int) extends konstrukceKarty(kolikKaret):
+    def text: String
+    override def toString = text
+    def click(): Unit = println("Karta click")
+
+class GamesKarta(kolikKaret: Int) extends Karta(kolikKaret):
+    val text = "Games"
+
 val centerX = (X: Int, txt: Text, multiplier: Number) => X / 2 - txt.getLayoutBounds.getWidth * multiplier.floatValue()
 
 object KV_OS_GUI_Scala extends JFXApp3:
@@ -30,7 +45,9 @@ object KV_OS_GUI_Scala extends JFXApp3:
             txt.x = centerX(X, txt, 1.5)
             txt.layoutY = 40
 
-            var tlacitkoZapnute = false
+            var shutdownTlacitkoZapnute = false
+            var gamesTlacitkoZapnute = false
+
             val tlacitko: Rectangle = new Rectangle:
                 width = 100
                 height = 100
@@ -38,8 +55,8 @@ object KV_OS_GUI_Scala extends JFXApp3:
                 y = 50
                 fill = Color.rgb(0, 255, 0)
                 onMouseClicked = () => shutdownClick()
-            val shutdownTextY: Double = 80 + tlacitko.getHeight
 
+            val shutdownTextY: Double = 80 + tlacitko.getHeight
             val shutdownText: Text = new Text("SHUTDOWN"):
                 style = "-fx-font: bold 20pt monospace"
                 fill = Color.Green
@@ -66,12 +83,28 @@ object KV_OS_GUI_Scala extends JFXApp3:
             shutdownButtonNeText.x = centerX(X, shutdownButtonNeText, -2.7)
 
             val shutdownClick = () =>
-                tlacitko.fill = if tlacitkoZapnute then Color.rgb(0, 255, 0) else Color.rgb(255, 255, 255)
-                content = if !tlacitkoZapnute then shutdownDesktop else defaultDesktop
-                tlacitkoZapnute = !tlacitkoZapnute
+                tlacitko.fill = if shutdownTlacitkoZapnute then Color.rgb(0, 255, 0) else Color.rgb(255, 255, 255)
+                content = if !shutdownTlacitkoZapnute then shutdownDesktop else defaultDesktop
+                shutdownTlacitkoZapnute = !shutdownTlacitkoZapnute
 
-            val gamesText: Text = new Text("Games")
+            val gamesText: Text = new Text("GAMES"):
+                style = "-fx-font: bold 20pt monospace"
+                fill = Color.Green
+                layoutX = 48
+                layoutY = shutdownTextY + 80
+                onMouseClicked = () => gamesClick()
 
-            val shutdownDesktop = List(txt, tlacitko, shutdownText, shutdownButtonAno, shutdownButtonNe, shutdownButtonAnoText, shutdownButtonNeText)
-            val defaultDesktop = List(txt, tlacitko, shutdownText)
+            var games_karta = GamesKarta(0)
+            val gamesClick = () =>
+                if shutdownTlacitkoZapnute then shutdownClick()
+                games_karta = GamesKarta(0)
+                val gamesKartaText = new Text(games_karta.toString):
+                    style = "-fx-font: 10pt calibri"
+                    println(games_karta.x.toInt + games_karta.width.toInt - 20)
+                    layoutX = games_karta.x.toInt + games_karta.width.toInt - 75
+                    layoutY = 565
+                content = List(games_karta, gamesKartaText)
+
+            val shutdownDesktop = List(txt, tlacitko, shutdownText, shutdownButtonAno, shutdownButtonNe, shutdownButtonAnoText, shutdownButtonNeText, gamesText)
+            val defaultDesktop = List(txt, tlacitko, shutdownText, gamesText)
             content = defaultDesktop
