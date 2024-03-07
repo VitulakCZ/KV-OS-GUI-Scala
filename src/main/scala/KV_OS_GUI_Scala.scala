@@ -23,7 +23,10 @@ class GamesButton extends konstrukceKarty(None)
 abstract class Karta(kolikKaret: Option[Double]) extends konstrukceKarty(kolikKaret):
     def text: String
     override def toString = text
-    def click(): Unit = println("Karta click")
+    def highlight(): Unit =
+        fill = Color.rgb(0, 255, 0)
+    def dehighlight(): Unit =
+        fill = Color.rgb(0, 100, 0)
 
 class GamesKarta(kolikKaret: Option[Double]) extends Karta(kolikKaret):
     val text = "Games"
@@ -106,20 +109,21 @@ object KV_OS_GUI_Scala extends JFXApp3:
             var gamesKarta = GamesKarta(Option(0))
             var gamesKartaText: Text = new Text()
             var gamesOpened = false
-            var gamesHighlited = false
+            var gamesHighlighted = false
             val gamesClick = () =>
                 if shutdownTlacitkoZapnute then shutdownClick()
                 pocetKaret = if !gamesOpened then pocetKaret + 1 else pocetKaret
                 gamesKarta = GamesKarta(Option(pocetKaret))
 
                 gamesOpened = true
-                gamesHighlited = true
+                gamesHighlighted = true
+
                 val gamesExit = new Text("Exit"):
                     style = "-fx-font: 15pt sains-serif"
                     layoutX = 730
                     layoutY = 550
                     onMouseClicked = () =>
-                        gamesHighlited = false
+                        gamesHighlighted = false
                         gamesOpened = false
                         pocetKaret -= 1
                         defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText)
@@ -127,18 +131,20 @@ object KV_OS_GUI_Scala extends JFXApp3:
 
                 gamesKartaText = new Text(gamesKarta.toString):
                     style = "-fx-font: 10pt calibri"
-                    println(gamesKarta.x.toInt + gamesKarta.width.toInt - 20)
                     layoutX = gamesKarta.x.toInt + gamesKarta.width.toInt - 75
                     layoutY = 565
                     onMouseClicked = () =>
-                        gamesHighlited = !gamesHighlited
+                        gamesHighlighted = !gamesHighlighted
+                        if gamesHighlighted then gamesKarta.highlight() else gamesKarta.dehighlight()
                         defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, this)
-                        content = if !gamesHighlited then defaultDesktop else List(games_txt, gamesKarta, this, gamesExit)
+                        content = if !gamesHighlighted then defaultDesktop else List(games_txt, gamesKarta, this, gamesExit)
 
                 gamesKarta.onMouseClicked = () =>
-                    gamesHighlited = !gamesHighlited
+                    gamesHighlighted = !gamesHighlighted
+                    if gamesHighlighted then gamesKarta.highlight() else gamesKarta.dehighlight()
                     defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText)
-                    content = if !gamesHighlited then defaultDesktop else List(games_txt, gamesKarta, gamesKartaText, gamesExit)
+                    content = if !gamesHighlighted then defaultDesktop else List(games_txt, gamesKarta, gamesKartaText, gamesExit)
+                gamesKarta.highlight()
 
                 content = List(games_txt, gamesKarta, gamesKartaText, gamesExit)
             val shutdownDesktop = List(txt, tlacitko, shutdownText, ShutdownButtonAno, ShutdownButtonNe, ShutdownButtonAnoText, ShutdownButtonNeText, gamesButton, gamesText)
