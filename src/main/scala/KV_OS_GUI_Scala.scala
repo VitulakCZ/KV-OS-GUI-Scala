@@ -104,7 +104,7 @@ object KV_OS_GUI_Scala extends JFXApp3:
             var pocetKaret = -1
 
             var gamesKarta = GamesKarta(Option(0))
-            var gamesKartaText: Text = Text("")
+            var gamesKartaText: Text = new Text()
             var gamesOpened = false
             var gamesHighlited = false
             val gamesClick = () =>
@@ -114,6 +114,17 @@ object KV_OS_GUI_Scala extends JFXApp3:
 
                 gamesOpened = true
                 gamesHighlited = true
+                val gamesExit = new Text("Exit"):
+                    style = "-fx-font: 15pt sains-serif"
+                    layoutX = 730
+                    layoutY = 550
+                    onMouseClicked = () =>
+                        gamesHighlited = false
+                        gamesOpened = false
+                        pocetKaret -= 1
+                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText)
+                        content = defaultDesktop
+
                 gamesKartaText = new Text(gamesKarta.toString):
                     style = "-fx-font: 10pt calibri"
                     println(gamesKarta.x.toInt + gamesKarta.width.toInt - 20)
@@ -122,14 +133,14 @@ object KV_OS_GUI_Scala extends JFXApp3:
                     onMouseClicked = () =>
                         gamesHighlited = !gamesHighlited
                         defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, this)
-                        content = if !gamesHighlited then defaultDesktop else List(games_txt, gamesKarta, this)
+                        content = if !gamesHighlited then defaultDesktop else List(games_txt, gamesKarta, this, gamesExit)
 
                 gamesKarta.onMouseClicked = () =>
                     gamesHighlited = !gamesHighlited
                     defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText)
-                    content = if !gamesHighlited then defaultDesktop else List(games_txt, gamesKarta, gamesKartaText)
+                    content = if !gamesHighlited then defaultDesktop else List(games_txt, gamesKarta, gamesKartaText, gamesExit)
 
-                content = List(games_txt, gamesKarta, gamesKartaText)
+                content = List(games_txt, gamesKarta, gamesKartaText, gamesExit)
             val shutdownDesktop = List(txt, tlacitko, shutdownText, ShutdownButtonAno, ShutdownButtonNe, ShutdownButtonAnoText, ShutdownButtonNeText, gamesButton, gamesText)
             var defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText)
             content = defaultDesktop
