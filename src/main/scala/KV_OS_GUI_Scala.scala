@@ -47,7 +47,7 @@ object KV_OS_GUI_Scala extends JFXApp3:
 
         stage.scene = new Scene:
             fill = Color.rgb(0, 0, 255)
-            val txt = new HorniText("KV OS!", X)
+            val txt = HorniText("KV OS!", X)
 
             var shutdownTlacitkoZapnute = false
             var gamesTlacitkoZapnute = false
@@ -91,9 +91,9 @@ object KV_OS_GUI_Scala extends JFXApp3:
                 content = if !shutdownTlacitkoZapnute then shutdownDesktop else defaultDesktop
                 shutdownTlacitkoZapnute = !shutdownTlacitkoZapnute
 
-            val gamesButton: Rectangle = new GamesButton()
-            
-            val games_txt: Text = new HorniText("Games", X)
+            val gamesButton: Rectangle = GamesButton()
+
+            val games_txt: Text = HorniText("Games", X)
             val gamesText: Text = new Text("GAMES"):
                 style = "-fx-font: bold 20pt monospace"
                 fill = Color.rgb(0, 170, 0)
@@ -101,17 +101,35 @@ object KV_OS_GUI_Scala extends JFXApp3:
                 layoutY = shutdownTextY + 80
                 onMouseClicked = () => gamesClick()
 
+            var pocetKaret = -1
+
             var gamesKarta = GamesKarta(Option(0))
+            var gamesKartaText: Text = Text("")
+            var gamesOpened = false
+            var gamesHighlited = false
             val gamesClick = () =>
                 if shutdownTlacitkoZapnute then shutdownClick()
-                gamesKarta = GamesKarta(Option(0))
-                val gamesKartaText = new Text(gamesKarta.toString):
+                pocetKaret = if !gamesOpened then pocetKaret + 1 else pocetKaret
+                gamesKarta = GamesKarta(Option(pocetKaret))
+
+                gamesOpened = true
+                gamesHighlited = true
+                gamesKartaText = new Text(gamesKarta.toString):
                     style = "-fx-font: 10pt calibri"
                     println(gamesKarta.x.toInt + gamesKarta.width.toInt - 20)
                     layoutX = gamesKarta.x.toInt + gamesKarta.width.toInt - 75
                     layoutY = 565
-                content = List(games_txt, gamesKarta, gamesKartaText)
+                    onMouseClicked = () =>
+                        gamesHighlited = !gamesHighlited
+                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, this)
+                        content = if !gamesHighlited then defaultDesktop else List(games_txt, gamesKarta, this)
 
+                gamesKarta.onMouseClicked = () =>
+                    gamesHighlited = !gamesHighlited
+                    defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText)
+                    content = if !gamesHighlited then defaultDesktop else List(games_txt, gamesKarta, gamesKartaText)
+
+                content = List(games_txt, gamesKarta, gamesKartaText)
             val shutdownDesktop = List(txt, tlacitko, shutdownText, ShutdownButtonAno, ShutdownButtonNe, ShutdownButtonAnoText, ShutdownButtonNeText, gamesButton, gamesText)
-            val defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText)
+            var defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText)
             content = defaultDesktop
