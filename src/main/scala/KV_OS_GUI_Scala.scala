@@ -12,9 +12,9 @@ class ShutdownButton(X: Int, Y: Int) extends Rectangle:
     y = Y / 2 - height.toInt / 2
 
 trait konstrukceKarty(kolikKaret: Option[Double]) extends Rectangle:
+    fill = Color.rgb(0, 100, 0)
     width = 100
     height = if kolikKaret.isDefined then 20 else 30
-    fill = if kolikKaret.isDefined then Color.Red else Color.rgb(0, 100, 0)
     x = kolikKaret.getOrElse(0.37) * width.toInt
     y = if kolikKaret.isDefined then 550 else 235
 
