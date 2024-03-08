@@ -5,11 +5,29 @@ import scalafx.scene.paint.*
 import scalafx.scene.shape.Rectangle
 import scalafx.scene.text.Text
 
+class Tlacitko(X: Int, Y: Int) extends Rectangle:
+    width = 100
+    height = 100
+    x = X
+    y = Y
+    fill = Color.rgb(0, 255, 0)
+
 class ShutdownButton(X: Int, Y: Int) extends Rectangle:
     width = 80
     height = 40
     x = X / 2 - width.toInt * 1.3
     y = Y / 2 - height.toInt / 2
+
+class ImportantText(txt: String, X: Int) extends Text(txt):
+    style = "-fx-font: bold 20pt monospace"
+    fill = Color.Green
+    layoutX = X
+    layoutY = 180
+
+class SmallText(txt: String, shutdownTextY: Double) extends Text(txt):
+    fill = Color.White
+    style = "-fx-font: 10pt calibri"
+    y = shutdownTextY * 1.7
 
 trait konstrukceKarty(kolikKaret: Option[Double]) extends Rectangle:
     fill = Color.rgb(0, 100, 0)
@@ -54,45 +72,32 @@ object KV_OS_GUI_Scala extends JFXApp3:
 
             var shutdownTlacitkoZapnute = false
             var gamesTlacitkoZapnute = false
+            var optionsTlacitkoZapnute = false
 
-            val tlacitko: Rectangle = new Rectangle:
-                width = 100
-                height = 100
-                x = 40
-                y = 50
-                fill = Color.rgb(0, 255, 0)
+            val tlacitko: Rectangle = new Tlacitko(40, 50):
                 onMouseClicked = () => shutdownClick()
 
             val shutdownTextY: Double = 80 + tlacitko.getHeight
-            val shutdownText: Text = new Text("SHUTDOWN"):
-                style = "-fx-font: bold 20pt monospace"
-                fill = Color.Green
-                layoutX = 25
-                layoutY = shutdownTextY
+            val shutdownText: Text = new ImportantText("SHUTDOWN", 27)
 
             val ShutdownButtonAno: ShutdownButton = new ShutdownButton(X, Y):
                 onMouseClicked = () => System.exit(0)
-            val ShutdownButtonAnoText: Text = new Text("Ano"):
-                fill = Color.White
-                style = "-fx-font: 10pt calibri"
-                y = shutdownTextY * 1.7
+            val ShutdownButtonAnoText: Text = new SmallText("Ano", shutdownTextY):
                 onMouseClicked = () => System.exit(0)
             ShutdownButtonAnoText.x = centerX(X, ShutdownButtonAnoText, 3)
 
             val ShutdownButtonNe: Rectangle = new ShutdownButton(X, Y):
                 x = x.toInt + width.toInt * 1.5
                 onMouseClicked = () => shutdownClick()
-            val ShutdownButtonNeText: Text = new Text("Ne"):
-                fill = Color.White
-                style = "-fx-font: 10pt calibri"
-                y = shutdownTextY * 1.7
+            val ShutdownButtonNeText: Text = new SmallText("Ne", shutdownTextY):
                 onMouseClicked = () => shutdownClick()
             ShutdownButtonNeText.x = centerX(X, ShutdownButtonNeText, -2.7)
 
             val shutdownClick = () =>
-                tlacitko.fill = if shutdownTlacitkoZapnute then Color.rgb(0, 255, 0) else Color.rgb(255, 255, 255)
-                content = if !shutdownTlacitkoZapnute then shutdownDesktop else defaultDesktop
-                shutdownTlacitkoZapnute = !shutdownTlacitkoZapnute
+                if !optionsTlacitkoZapnute then
+                    tlacitko.fill = if shutdownTlacitkoZapnute then Color.rgb(0, 255, 0) else Color.rgb(255, 255, 255)
+                    content = if !shutdownTlacitkoZapnute then shutdownDesktop else defaultDesktop
+                    shutdownTlacitkoZapnute = !shutdownTlacitkoZapnute
 
             val gamesButton: Rectangle = GamesButton()
 
@@ -100,18 +105,18 @@ object KV_OS_GUI_Scala extends JFXApp3:
             val gamesText: Text = new Text("GAMES"):
                 style = "-fx-font: bold 20pt monospace"
                 fill = Color.rgb(0, 170, 0)
-                layoutX = 48
+                layoutX = 47
                 layoutY = shutdownTextY + 80
                 onMouseClicked = () => gamesClick()
 
             var pocetKaret = -1
-
             var gamesKarta = GamesKarta(Option(0))
             var gamesKartaText: Text = new Text()
             var gamesOpened = false
             var gamesHighlighted = false
             val gamesClick = () =>
                 if shutdownTlacitkoZapnute then shutdownClick()
+                if optionsTlacitkoZapnute then optionsClick()
                 pocetKaret = if !gamesOpened then pocetKaret + 1 else pocetKaret
                 gamesKarta = GamesKarta(Option(pocetKaret))
 
@@ -126,7 +131,7 @@ object KV_OS_GUI_Scala extends JFXApp3:
                         gamesHighlighted = false
                         gamesOpened = false
                         pocetKaret -= 1
-                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText)
+                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText)
                         content = defaultDesktop
 
                 gamesKartaText = new Text(gamesKarta.toString):
@@ -136,17 +141,44 @@ object KV_OS_GUI_Scala extends JFXApp3:
                     onMouseClicked = () =>
                         gamesHighlighted = !gamesHighlighted
                         if gamesHighlighted then gamesKarta.highlight() else gamesKarta.dehighlight()
-                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, this)
+                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, this, optionsTlacitko, optionsText)
                         content = if !gamesHighlighted then defaultDesktop else List(games_txt, gamesKarta, this, gamesExit)
 
                 gamesKarta.onMouseClicked = () =>
                     gamesHighlighted = !gamesHighlighted
                     if gamesHighlighted then gamesKarta.highlight() else gamesKarta.dehighlight()
-                    defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText)
+                    defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText, optionsTlacitko, optionsText)
                     content = if !gamesHighlighted then defaultDesktop else List(games_txt, gamesKarta, gamesKartaText, gamesExit)
                 gamesKarta.highlight()
 
                 content = List(games_txt, gamesKarta, gamesKartaText, gamesExit)
-            val shutdownDesktop = List(txt, tlacitko, shutdownText, ShutdownButtonAno, ShutdownButtonNe, ShutdownButtonAnoText, ShutdownButtonNeText, gamesButton, gamesText)
-            var defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText)
+
+            val optionsTlacitko: Rectangle = new Tlacitko(200, 50):
+                onMouseClicked = () => optionsClick()
+            val optionsText: Text = new ImportantText("OPTIONS", 194)
+
+            val optionsLanguage: Rectangle = new ShutdownButton(X, Y):
+                onMouseClicked = () =>
+                    println("WIP!")
+            val optionsLanguageText: Text = new SmallText("Options", shutdownTextY):
+                onMouseClicked = () =>
+                    println("WIP!")
+            optionsLanguageText.x = centerX(X, optionsLanguageText, 1.8)
+
+            val optionsBack: Rectangle = new ShutdownButton(X, Y):
+                x = x.toInt + width.toInt * 1.5
+                onMouseClicked = () => optionsClick()
+            val optionsBackText: Text = new SmallText("Back", shutdownTextY):
+                onMouseClicked = () => optionsClick()
+            optionsBackText.x = centerX(X, optionsBackText, -1.3)
+
+            val optionsClick = () =>
+                if !shutdownTlacitkoZapnute then
+                    optionsTlacitko.fill = if optionsTlacitkoZapnute then Color.rgb(0, 255, 0) else Color.rgb(255, 255, 255)
+                    content = if !optionsTlacitkoZapnute then optionsDesktop else defaultDesktop
+                    optionsTlacitkoZapnute = !optionsTlacitkoZapnute
+
+            val shutdownDesktop = List(txt, tlacitko, shutdownText, ShutdownButtonAno, ShutdownButtonNe, ShutdownButtonAnoText, ShutdownButtonNeText, gamesButton, gamesText, optionsTlacitko, optionsText)
+            val optionsDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText, optionsLanguage, optionsBack, optionsLanguageText, optionsBackText)
+            var defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText)
             content = defaultDesktop
