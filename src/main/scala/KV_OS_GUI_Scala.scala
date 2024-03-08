@@ -49,6 +49,9 @@ abstract class Karta(kolikKaret: Option[Double]) extends konstrukceKarty(kolikKa
 class GamesKarta(kolikKaret: Option[Double]) extends Karta(kolikKaret):
     val text = "Games"
 
+class LanguageKarta(kolikKaret: Option[Double]) extends Karta(kolikKaret):
+    val text = "Language"
+
 val centerX = (X: Int, txt: Text, multiplier: Number) => X / 2 - txt.getLayoutBounds.getWidth * multiplier.floatValue()
 
 class HorniText(txt: String, X: Int) extends Text(txt):
@@ -131,7 +134,10 @@ object KV_OS_GUI_Scala extends JFXApp3:
                         gamesHighlighted = false
                         gamesOpened = false
                         pocetKaret -= 1
-                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText)
+                        if !languageOpened then
+                            defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText)
+                        else
+                            defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText, languageKarta, languageKartaText)
                         content = defaultDesktop
 
                 gamesKartaText = new Text(gamesKarta.toString):
@@ -140,30 +146,53 @@ object KV_OS_GUI_Scala extends JFXApp3:
                     layoutY = 565
                     onMouseClicked = () =>
                         gamesHighlighted = !gamesHighlighted
+                        languageHighlighted = false
+                        languageKarta.dehighlight()
                         if gamesHighlighted then gamesKarta.highlight() else gamesKarta.dehighlight()
-                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, this, optionsTlacitko, optionsText)
-                        content = if !gamesHighlighted then defaultDesktop else List(games_txt, gamesKarta, this, gamesExit)
+                        if !languageOpened then
+                            defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, this, optionsTlacitko, optionsText)
+                        else
+                            defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, this, optionsTlacitko, optionsText, languageKarta, languageKartaText)
+                        if !gamesHighlighted then
+                            content = defaultDesktop
+                        else if gamesHighlighted && !languageOpened then
+                            content = List(games_txt, gamesKarta, gamesKartaText, gamesExit)
+                        else if languageOpened then
+                            content = List(games_txt, gamesKarta, gamesKartaText, gamesExit, languageKarta, languageKartaText)
 
                 gamesKarta.onMouseClicked = () =>
                     gamesHighlighted = !gamesHighlighted
+                    languageHighlighted = false
+                    languageKarta.dehighlight()
                     if gamesHighlighted then gamesKarta.highlight() else gamesKarta.dehighlight()
-                    defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText, optionsTlacitko, optionsText)
-                    content = if !gamesHighlighted then defaultDesktop else List(games_txt, gamesKarta, gamesKartaText, gamesExit)
+                    if !languageOpened then
+                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText, optionsTlacitko, optionsText)
+                    else
+                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText, optionsTlacitko, optionsText, languageKarta, languageKartaText)
+                    if !gamesHighlighted then
+                        content = defaultDesktop
+                    else if gamesHighlighted && !languageOpened then
+                            content = List(games_txt, gamesKarta, gamesKartaText, gamesExit)
+                    else if languageOpened then
+                        content = List(games_txt, gamesKarta, gamesKartaText, gamesExit, languageKarta, languageKartaText)
                 gamesKarta.highlight()
 
-                content = List(games_txt, gamesKarta, gamesKartaText, gamesExit)
+                if !languageOpened then
+                    content = List(games_txt, gamesKarta, gamesKartaText, gamesExit)
+                else
+                    content = List(games_txt, gamesKarta, gamesKartaText, gamesExit, languageKarta, languageKartaText)
 
             val optionsTlacitko: Rectangle = new Tlacitko(200, 50):
                 onMouseClicked = () => optionsClick()
+
+            val options_txt: Text = HorniText("Options", X)
             val optionsText: Text = new ImportantText("OPTIONS", 194)
 
             val optionsLanguage: Rectangle = new ShutdownButton(X, Y):
-                onMouseClicked = () =>
-                    println("WIP!")
-            val optionsLanguageText: Text = new SmallText("Options", shutdownTextY):
-                onMouseClicked = () =>
-                    println("WIP!")
-            optionsLanguageText.x = centerX(X, optionsLanguageText, 1.8)
+                onMouseClicked = () => languageClick()
+            val optionsLanguageText: Text = new SmallText("Language", shutdownTextY):
+                onMouseClicked = () => languageClick()
+            optionsLanguageText.x = centerX(X, optionsLanguageText, 1.5)
 
             val optionsBack: Rectangle = new ShutdownButton(X, Y):
                 x = x.toInt + width.toInt * 1.5
@@ -178,6 +207,73 @@ object KV_OS_GUI_Scala extends JFXApp3:
                     content = if !optionsTlacitkoZapnute then optionsDesktop else defaultDesktop
                     optionsTlacitkoZapnute = !optionsTlacitkoZapnute
 
+            var languageKarta: LanguageKarta = LanguageKarta(Option(pocetKaret))
+            var languageKartaText: Text = new Text()
+            var languageOpened = false
+            var languageHighlighted = false
+            val languageClick = () =>
+                if shutdownTlacitkoZapnute then shutdownClick()
+                if optionsTlacitkoZapnute then optionsClick()
+                pocetKaret = if !languageOpened then pocetKaret + 1 else pocetKaret
+                languageKarta = LanguageKarta(Option(pocetKaret))
+
+                languageOpened = true
+                languageHighlighted = true
+
+                val languageExit = new Text("Exit"):
+                    style = "-fx-font: 15pt sains-serif"
+                    layoutX = 730
+                    layoutY = 550
+                    onMouseClicked = () =>
+                        languageHighlighted = false
+                        languageOpened = false
+                        pocetKaret -= 1
+                        if !gamesOpened then
+                            defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText)
+                        else
+                            defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText, gamesKarta, gamesKartaText)
+                        content = defaultDesktop
+
+                languageKartaText = new Text(languageKarta.toString):
+                    style = "-fx-font: 10pt calibri"
+                    layoutX = languageKarta.x.toInt + languageKarta.width.toInt - 75
+                    layoutY = 565
+                    onMouseClicked = () =>
+                        languageHighlighted = !languageHighlighted
+                        gamesKarta.dehighlight()
+                        gamesHighlighted = false
+                        if languageHighlighted then languageKarta.highlight() else languageKarta.dehighlight()
+                        if !gamesOpened then
+                            defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, languageKarta, this, optionsTlacitko, optionsText)
+                        else
+                            defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, languageKarta, this, optionsTlacitko, optionsText, gamesKarta, gamesKartaText)
+                        if !languageHighlighted then
+                            content = defaultDesktop
+                        else if languageHighlighted && !gamesOpened then
+                            content = List(options_txt, languageKarta, languageKartaText, languageExit)
+                        else if gamesOpened then
+                            content = List(options_txt, languageKarta, languageKartaText, languageExit, gamesKarta, gamesKartaText)
+                languageKarta.onMouseClicked = () =>
+                    languageHighlighted = !languageHighlighted
+                    gamesKarta.dehighlight()
+                    gamesHighlighted = false
+                    if languageHighlighted then languageKarta.highlight() else languageKarta.dehighlight()
+                    if !gamesOpened then
+                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, languageKarta, languageKartaText, optionsTlacitko, optionsText)
+                    else
+                        defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, gamesKarta, gamesKartaText, optionsTlacitko, optionsText, languageKarta, languageKartaText)
+                    if !languageHighlighted then
+                        content = defaultDesktop
+                    else if languageHighlighted && !gamesOpened then
+                            content = List(options_txt, languageKarta, languageKartaText, languageExit)
+                    else if gamesOpened then
+                        content = List(options_txt, languageKarta, languageKartaText, languageExit, gamesKarta, gamesKartaText)
+
+                languageKarta.highlight()
+                if !gamesOpened then
+                    content = List(options_txt, languageKarta, languageKartaText, languageExit)
+                else
+                    content = List(options_txt, languageKarta, languageKartaText, languageExit, gamesKarta, gamesKartaText)
             val shutdownDesktop = List(txt, tlacitko, shutdownText, ShutdownButtonAno, ShutdownButtonNe, ShutdownButtonAnoText, ShutdownButtonNeText, gamesButton, gamesText, optionsTlacitko, optionsText)
             val optionsDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText, optionsLanguage, optionsBack, optionsLanguageText, optionsBackText)
             var defaultDesktop = List(txt, tlacitko, shutdownText, gamesButton, gamesText, optionsTlacitko, optionsText)
